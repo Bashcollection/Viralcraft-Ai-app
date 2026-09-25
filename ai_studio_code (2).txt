@@ -1,0 +1,267 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import '../services/remote_config_service.dart';
+import '../widgets/remote_social_banner.dart';
+import '../widgets/flutterwave_checkout_modal.dart';
+import '../widgets/viral_referral_export_modal.dart';
+
+class DashboardScreen extends StatefulWidget {
+  const DashboardScreen({Key? key}) : super(key: key);
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  final RemoteConfigService _configService = RemoteConfigService();
+  AppConfigModel? _config;
+  int _creditBalance = 10;
+  final String _referralCode = 'VIRAL-PRO88';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadConfig();
+  }
+
+  Future<void> _loadConfig() async {
+    final conf = await _configService.fetchRemoteConfig();
+    setState(() => _config = conf);
+  }
+
+  void _openCheckout() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => FlutterwaveCheckoutModal(
+        onSuccess: (creditsAdded) {
+          setState(() => _creditBalance += creditsAdded);
+          Navigator.pop(context);
+        },
+      ),
+    );
+  }
+
+  void _simulateRender(String toolName, int cost) {
+    if (_creditBalance < cost) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Insufficient credits! Tap Buy Credits.')),
+      );
+      _openCheckout();
+      return;
+    }
+
+    setState(() => _creditBalance -= cost);
+
+    showDialog(
+      context: context,
+      builder: (_) => ViralReferralExportModal(
+        videoTitle: '$toolName Viral Short',
+        referralCode: _referralCode,
+        watermarkEnabled: _config?.watermarkEnabled ?? true,
+        onBonusAwarded: (bonus) {
+          setState(() => _creditBalance += bonus);
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF0B0E17),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF131826),
+        elevation: 0,
+        title: Row(
+          children: const [
+            Icon(Icons.play_circle_fill, color: Color(0xFF8B5CF6)),
+            SizedBox(width: 8),
+            Text('ViralCraft AI', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          ],
+        ),
+        actions: [
+          ElevatedButton.icon(
+            onPressed: _openCheckout,
+            icon: const Icon(Icons.shopping_bag, size: 16),
+            label: const Text('Buy Credits', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF8B5CF6),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+          ),
+          const SizedBox(width: 12),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // User Balance & Referral Header Card
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: const Color(0xFF131826),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: const Color(0xFF2E3A52)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.bolt, color: Color(0xFFF59E0B), size: 22),
+                      const SizedBox(width: 6),
+                      Text(
+                        '$_creditBalance Credits',
+                        style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(width: 6),
+                      const Text('(Free Trial)', style: TextStyle(color: Colors.white38, fontSize: 11)),
+                    ],
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text: _referralCode));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Referral code copied!')),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1E2638),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: const Color(0xFF06B6D4)),
+                      ),
+                      child: Row(
+                        children: [
+                          Text('Ref: $_referralCode', style: const TextStyle(color: Color(0xFF22D3EE), fontSize: 12, fontWeight: FontWeight.w600)),
+                          const SizedBox(width: 6),
+                          const Icon(Icons.copy, size: 14, color: Color(0xFF22D3EE)),
+                        ],
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Remote Config Social Community Banner
+            if (_config != null) RemoteSocialBanner(config: _config!),
+            const SizedBox(height: 20),
+
+            const Text(
+              'AI Video Generation Studios',
+              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+
+            // 4 Core Feature Cards Grid
+            GridView.count(
+              crossAxisCount: 2,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.05,
+              children: [
+                _buildStudioCard(
+                  title: 'Talking Avatar',
+                  subtitle: 'Hedra Lip-Sync & ElevenLabs',
+                  cost: '5 cr',
+                  icon: Icons.video_camera_front,
+                  color: const Color(0xFF8B5CF6),
+                  onTap: () => _simulateRender('Talking Avatar', 5),
+                ),
+                _buildStudioCard(
+                  title: 'Faceless Reel',
+                  subtitle: 'GTA/Minecraft & Viral Hooks',
+                  cost: '3 cr',
+                  icon: Icons.movie_creation,
+                  color: const Color(0xFF06B6D4),
+                  onTap: () => _simulateRender('Faceless Reel', 3),
+                ),
+                _buildStudioCard(
+                  title: 'AI Voice Studio',
+                  subtitle: 'ElevenLabs Realistic TTS',
+                  cost: '1 cr',
+                  icon: Icons.graphic_eq,
+                  color: const Color(0xFFF59E0B),
+                  onTap: () => _simulateRender('AI Voice Studio', 1),
+                ),
+                _buildStudioCard(
+                  title: 'Auto-Captions',
+                  subtitle: 'Whisper AI Word-by-Word',
+                  cost: '2 cr',
+                  icon: Icons.subtitles,
+                  color: const Color(0xFFF43F5E),
+                  onTap: () => _simulateRender('Auto-Captions', 2),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStudioCard({
+    required String title,
+    required String subtitle,
+    required String cost,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color(0xFF131826),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFF2E3A52)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: color.withOpacity(0.2),
+                  child: Icon(icon, color: color, size: 20),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E2638),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(cost, style: const TextStyle(color: Color(0xFFF59E0B), fontSize: 10, fontWeight: FontWeight.bold)),
+                ),
+              ],
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                const SizedBox(height: 4),
+                Text(subtitle, style: const TextStyle(color: Colors.white54, fontSize: 10), maxLines: 2),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

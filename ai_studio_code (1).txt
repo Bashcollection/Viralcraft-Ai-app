@@ -1,0 +1,51 @@
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+class AppConfigModel {
+  final String whatsappGroupUrl;
+  final String facebookGroupUrl;
+  final String tiktokAccountUrl;
+  final int referralBonusCredits;
+  final bool watermarkEnabled;
+
+  AppConfigModel({
+    required this.whatsappGroupUrl,
+    required this.facebookGroupUrl,
+    required this.tiktokAccountUrl,
+    required this.referralBonusCredits,
+    required this.watermarkEnabled,
+  });
+
+  factory AppConfigModel.fromMap(Map<String, dynamic> map) {
+    return AppConfigModel(
+      whatsappGroupUrl: map['whatsapp_group_url'] ?? '',
+      facebookGroupUrl: map['facebook_group_url'] ?? '',
+      tiktokAccountUrl: map['tiktok_account_url'] ?? '',
+      referralBonusCredits: map['referral_bonus_credits'] ?? 25,
+      watermarkEnabled: map['watermark_enabled'] ?? true,
+    );
+  }
+}
+
+class RemoteConfigService {
+  final SupabaseClient _supabase = Supabase.instance.client;
+
+  Future<AppConfigModel> fetchRemoteConfig() async {
+    try {
+      final response = await _supabase
+          .from('app_config')
+          .select()
+          .eq('id', 1)
+          .single();
+      return AppConfigModel.fromMap(response);
+    } catch (e) {
+      // Robust Fallback if offline
+      return AppConfigModel(
+        whatsappGroupUrl: 'https://chat.whatsapp.com/ViralCraftCreatorsVIP',
+        facebookGroupUrl: 'https://facebook.com/groups/viralcraftmastermind',
+        tiktokAccountUrl: 'https://tiktok.com/@viralcraftai',
+        referralBonusCredits: 25,
+        watermarkEnabled: true,
+      );
+    }
+  }
+}

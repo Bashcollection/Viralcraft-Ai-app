@@ -1,0 +1,86 @@
+import 'package:flutter/material.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+
+class FlutterwaveCheckoutModal extends StatefulWidget {
+  final Function(int credits) onSuccess;
+
+  const FlutterwaveCheckoutModal({Key? key, required this.onSuccess}) : super(key: key);
+
+  @override
+  State<FlutterwaveCheckoutModal> createState() => _FlutterwaveCheckoutModalState();
+}
+
+class _FlutterwaveCheckoutModalState extends State<FlutterwaveCheckoutModal> {
+  String _selectedTier = 'creator_pro';
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: const BoxDecoration(
+        color: Color(0xFF131826),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Unlock ViralCraft AI Credits', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 4),
+          const Text('Instant processing via Flutterwave (NGN & USD)', style: TextStyle(color: Colors.white54, fontSize: 12)),
+          const SizedBox(height: 16),
+
+          _buildTierOption('starter', 'Starter Pack', '100 Credits', '₦5,000 / \$5'),
+          const SizedBox(height: 10),
+          _buildTierOption('creator_pro', 'Creator Pro (Most Popular)', '300 Credits + No Watermark', '₦15,000 / \$15/mo'),
+          const SizedBox(height: 10),
+          _buildTierOption('agency_max', 'Agency Max', '1,200 Credits + 4K Export', '₦50,000 / \$50/mo'),
+          const SizedBox(height: 20),
+
+          ElevatedButton(
+            onPressed: () {
+              final credits = _selectedTier == 'starter' ? 100 : _selectedTier == 'creator_pro' ? 300 : 1200;
+              widget.onSuccess(credits);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFFB923C), // Flutterwave brand accent
+              foregroundColor: Colors.black,
+              minimumSize: const Size(double.infinity, 50),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text('Proceed to Flutterwave Gateway', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+          ),
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTierOption(String id, String title, String subtitle, String price) {
+    final isSelected = _selectedTier == id;
+    return InkWell(
+      onTap: () => setState(() => _selectedTier = id),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF1E2638) : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: isSelected ? const Color(0xFF8B5CF6) : const Color(0xFF2E3A52)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                Text(subtitle, style: const TextStyle(color: Colors.white54, fontSize: 11)),
+              ],
+            ),
+            Text(price, style: const TextStyle(color: Color(0xFF10B981), fontWeight: FontWeight.bold)),
+          ],
+        ),
+      ),
+    );
+  }
+}
