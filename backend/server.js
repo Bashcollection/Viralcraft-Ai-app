@@ -1,4 +1,6 @@
+require('dotenv').config({ path: '/etc/secrets/.env' });
 require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
@@ -7,10 +9,10 @@ const { createClient } = require('@supabase/supabase-js');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const supabase = createClient(
-  process.env.SUPABASE_URL || 'https://jjrultpfgynxqowfnagu.supabase.co',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-);
+const supabaseUrl = process.env.SUPABASE_URL || process.env.supabaseUrl || 'https://jjrultpfgynxqowfnagu.supabase.co';
+const supabaseKey = process.env.SUPABASE_KEY || process.env.supabaseKey || process.env.SUPABASE_SERVICE_ROLE_KEY || 'Sb_publishable_e0vQlsbk0rkGv9hVsvYtUw_aDo8SBUQ';
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 app.use(cors());
 app.use(express.json());
