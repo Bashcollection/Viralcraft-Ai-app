@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'screens/dashboard_screen.dart';
-
+const String backendBaseUrl = 'https://viralcraft-ai-app.onrender.com';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
