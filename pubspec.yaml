@@ -1,5 +1,5 @@
 name: viralcraft_ai
-description: A new Flutter project for ViralCraft AI.
+description: A new Flutter project for mobile app backend and Flutter frontend
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -12,6 +12,7 @@ dependencies:
   supabase_flutter: ^2.0.0
   http: ^1.2.0
   cupertino_icons: ^1.0.6
+  flutterwave_standard: ^1.1.0
 
 dev_dependencies:
   flutter_test:
@@ -20,11 +21,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-dependencies:
-  flutter:
-    sdk: flutter
-  supabase_flutter: ^2.0.0
-  http: ^1.2.0
-  cupertino_icons: ^1.0.6
-  flutterwave_standard: ^1.1.0
-  
