@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'screens/dashboard_screen.dart';
+import 'screens/login_screen.dart';
+
 const String backendBaseUrl = 'https://viralcraft-ai-app.onrender.com';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -9,7 +11,7 @@ Future<void> main() async {
     url: 'https://jjrultpfgynxqowfnagu.supabase.co',
     anonKey: const String.fromEnvironment(
       'SUPABASE_ANON_KEY',
-      defaultValue: 'FLWPUBK-e165c107cffe4924242b35baa8ef803a-X',
+      defaultValue: 'FLWPUBK-e165c107cffe4924242b35baa0ef803a-X',
     ),
     authOptions: const FlutterAuthClientOptions(
       authFlowType: AuthFlowType.pkce,
@@ -24,7 +26,6 @@ class ViralCraftApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Professional Deep Blue & Indigo Palette
     const seedIndigo = Colors.indigo;
     const scaffoldBg = Color(0xFFF5F7FA);
 
@@ -37,8 +38,8 @@ class ViralCraftApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(
           seedColor: seedIndigo,
           brightness: Brightness.light,
-          primary: const Color(0xFF1E40AF),     // Deep Indigo/Blue
-          secondary: const Color(0xFF0284C7),   // Sky/Cyan accent
+          primary: const Color(0xFF1E40AF),
+          secondary: const Color(0xFF0284C7),
           surface: Colors.white,
           background: scaffoldBg,
         ),
@@ -72,7 +73,7 @@ class ViralCraftApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const DashboardScreen(),
+      home: const LoginScreen(),
     );
   }
 }
